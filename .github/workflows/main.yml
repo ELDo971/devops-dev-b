@@ -17,11 +17,7 @@ jobs:
 
       - name: Install Scaleway CLI
         run: |
-          sudo apt-get update
-          sudo apt-get install -y curl
-          curl -sL https://github.com/scaleway/scaleway-cli/releases/download/v2.18.0/scw-linux-amd64 -o /usr/local/bin/scw
-          sudo chmod +x /usr/local/bin/scw
-          scw --version
+          pacman -S scaleway-cli
 
       - name: Login to Scaleway
         run: |
