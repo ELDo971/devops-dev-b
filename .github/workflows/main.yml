@@ -17,7 +17,7 @@ jobs:
 
       - name: Install Scaleway CLI
         run: |
-          pacman -S scaleway-cli
+          curl -s https://raw.githubusercontent.com/scaleway/scaleway-cli/master/scripts/get.sh | sh
 
       - name: Login to Scaleway
         run: |
