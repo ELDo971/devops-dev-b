@@ -45,12 +45,19 @@ jobs:
             registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest \
             port=3000
 
-      # Step 3: Get Backend Container Endpoint (to pass to frontend)
-      - name: Get Backend Container Endpoint
+      - name: Get Backend Container ID and Endpoint
         run: |
-          BACKEND_IP=$(scw container serverless info backend-container | grep "ip" | awk '{print $2}')
-          echo "Backend IP: $BACKEND_IP"
-          echo "BACKEND_IP=$BACKEND_IP" >> $GITHUB_ENV
+          # List all containers and filter by the name "backend-container"
+          BACKEND_CONTAINER_ID=$(scw container container list | grep "backend-container" | awk '{print $1}')
+          
+          # Get the domain name for the container using its ID
+          BACKEND_DOMAIN=$(scw container container get $BACKEND_CONTAINER_ID | grep "DomainName" | awk '{print $2}')
+          
+          # Output the retrieved domain name to verify
+          echo "Backend Domain Name: $BACKEND_DOMAIN"
+          
+          # Set the DomainName as a GitHub Environment variable for use in future steps
+          echo "BACKEND_DOMAIN=$BACKEND_DOMAIN" >> $GITHUB_ENV
 
       # Step 4: Build & Push Frontend
       - name: Build & Push Frontend to Scaleway Container Registry
@@ -58,5 +65,18 @@ jobs:
           docker build -t my-frontendtest ./front
           docker tag my-frontendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
           docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
+
+      # Step 5: Deploy Frontend on Scaleway using `scw`
+      - name: Deploy Backend to Scaleway 
+        run: |
+          scw container container create name=frontend-container \
+            namespace-id=1e3d6ec8-7772-490a-bc87-0b53a16fff9d \
+            max-scale=1 \
+            cpu-limit=100 \
+            memory-limit=128 \
+            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest \
+            port=80 \
+            environment-variables.VITE_API_URL=
+
 
 
