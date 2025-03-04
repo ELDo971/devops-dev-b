@@ -15,17 +15,45 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Login to Scaleway Container Registry
-        run: echo ${{ secrets.SCW_SECRET_KEY }} | docker login rg.fr-par.scw.cloud/namespace-boucaud-dorian -u nologin --password-stdin
+      - name: Install Scaleway CLI
+        run: |
+          curl -sL https://github.com/scaleway/scaleway-cli/releases/download/v2.18.0/scw-linux-amd64 -o /usr/local/bin/scw
+          chmod +x /usr/local/bin/scw
 
-      - name: Build & Push Frontend
+      - name: Login to Scaleway
+        run: |
+          echo ${{ secrets.SCW_SECRET_KEY }} | scw login --access-key ${{ secrets.SCW_ACCESS_KEY }} --secret-key-stdin
+
+      # Step 1: Build & Push Backend
+      - name: Build & Push Backend to Scaleway Container Registry
+        run: |
+          docker build -t my-backendtest ./back
+          docker tag my-backendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
+          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
+
+      # Step 2: Deploy Backend on Scaleway using `scw`
+      - name: Deploy Backend to Scaleway
+        run: |
+          scw container container create name=backend-container \
+            namespace-id=1e3d6ec8-7772-490a-bc87-0b53a16fff9d \
+            max-scale=1 \
+            cpu-limit=100 \
+            memory-limit=128 \
+            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest \
+            port=3000
+
+      # Step 3: Get Backend Container Endpoint (to pass to frontend)
+      - name: Get Backend Container Endpoint
+        run: |
+          BACKEND_IP=$(scw container serverless info backend-container | grep "ip" | awk '{print $2}')
+          echo "Backend IP: $BACKEND_IP"
+          echo "BACKEND_IP=$BACKEND_IP" >> $GITHUB_ENV
+
+      # Step 4: Build & Push Frontend
+      - name: Build & Push Frontend to Scaleway Container Registry
         run: |
           docker build -t my-frontendtest ./front
           docker tag my-frontendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
           docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
 
-      - name: Build & Push Backend
-        run: |
-          docker build -t my-backendtest ./back
-          docker tag my-backendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
-          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
+
