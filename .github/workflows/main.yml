@@ -1,0 +1,31 @@
+name: Deploy to Scaleway
+
+on:
+  push:
+    branches:
+      - main  # Runs on push to the main branch
+
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Login to Scaleway Container Registry
+        run: echo ${{ secrets.SCW_SECRET_KEY }} | docker login rg.fr-par.scw.cloud/namespace-boucaud-dorian -u nologin --password-stdin
+
+      - name: Build & Push Frontend
+        run: |
+          docker build -t my-frontendtest ./front
+          docker tag my-frontendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
+          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
+
+      - name: Build & Push Backend
+        run: |
+          docker build -t my-backendtest ./back
+          docker tag my-backendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
+          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
