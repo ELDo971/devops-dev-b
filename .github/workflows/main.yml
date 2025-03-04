@@ -67,16 +67,16 @@ jobs:
           docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
 
       # Step 5: Deploy Frontend on Scaleway using `scw`
-      - name: Deploy Backend to Scaleway 
-        run: |
-          scw container container create name=frontend-container \
-            namespace-id=1e3d6ec8-7772-490a-bc87-0b53a16fff9d \
-            max-scale=1 \
-            cpu-limit=100 \
-            memory-limit=128 \
-            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest \
-            port=80 \
-            environment-variables.VITE_API_URL=
+      #- name: Deploy Backend to Scaleway 
+        #run: |
+        #  scw container container create name=frontend-container \
+        #    namespace-id=1e3d6ec8-7772-490a-bc87-0b53a16fff9d \
+         #   max-scale=1 \
+          #  cpu-limit=100 \
+           # memory-limit=128 \
+            #registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest \
+           # port=80 \
+           # environment-variables.VITE_API_URL=
 
 
 
