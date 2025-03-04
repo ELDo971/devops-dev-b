@@ -21,7 +21,7 @@ jobs:
 
       - name: Login to Scaleway
         run: |
-          scw init --access-key ${{ secrets.SCW_ACCESS_KEY }} --secret-key ${{ secrets.SCW_SECRET_KEY }} --region fr-par --project ${{ secrets.SCW_PROJECT_ID }}
+          scw init  secret-key=${{ secrets.SCW_SECRET_KEY }} access-key=${{ secrets.SCW_ACCESS_KEY }} project-id=${{ secrets.SCW_PROJECT_ID }} region=fr-par 
 
       # Step 1: Build & Push Backend
       - name: Build & Push Backend to Scaleway Container Registry
