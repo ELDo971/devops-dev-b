@@ -23,6 +23,10 @@ jobs:
         run: |
           scw init  secret-key=${{ secrets.SCW_SECRET_KEY }} access-key=${{ secrets.SCW_ACCESS_KEY }} organization-id=${{ secrets.SCW_ORGA_ID }} project-id=${{ secrets.SCW_PROJECT_ID }} region=fr-par 
 
+      - name: Login to Scaleway Container Registry
+        run: |
+          echo ${{ secrets.SCW_SECRET_KEY }} | docker login rg.fr-par.scw.cloud/namespace-boucaud-dorian -u nologin --password-stdin
+
       # Step 1: Build & Push Backend
       - name: Build & Push Backend to Scaleway Container Registry
         run: |
@@ -31,7 +35,7 @@ jobs:
           docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
 
       # Step 2: Deploy Backend on Scaleway using `scw`
-      - name: Deploy Backend to Scaleway
+      - name: Deploy Backend to Scaleway 
         run: |
           scw container container create name=backend-container \
             namespace-id=1e3d6ec8-7772-490a-bc87-0b53a16fff9d \
