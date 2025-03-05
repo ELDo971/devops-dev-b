@@ -37,8 +37,8 @@ jobs:
         run: |
           docker build -t my-backend ./back
           #trivy image --exit-code 1 --severity HIGH,CRITICAL my-backend
-          docker tag my-backendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
-          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest
+          docker tag my-backend:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backend:latest
+          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backend:latest
 
       # Step 2: Deploy Backend on Scaleway using `scw`
       - name: Deploy Backend to Scaleway 
@@ -48,7 +48,7 @@ jobs:
             max-scale=1 \
             cpu-limit=100 \
             memory-limit=128 \
-            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backendtest:latest \
+            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backend:latest \
             port=3000
 
       - name: Get Backend Container ID and Endpoint
@@ -70,8 +70,8 @@ jobs:
         run: |
           docker build -t my-frontend ./front
           #trivy image --exit-code 1 --severity HIGH,CRITICAL my-frontend
-          docker tag my-frontendtest:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
-          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest
+          docker tag my-frontend:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontend:latest
+          docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontend:latest
 
       # Step 5: Deploy Frontend on Scaleway using `scw`
       - name: Deploy Backend to Scaleway 
@@ -81,7 +81,7 @@ jobs:
             max-scale=1 \
             cpu-limit=100 \
             memory-limit=128 \
-            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontendtest:latest \
+            registry-image=rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontend:latest \
             port=80 \
             environment-variables.VITE_API_URL=https://$BACKEND_DOMAIN
 
