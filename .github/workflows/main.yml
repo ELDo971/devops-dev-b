@@ -36,6 +36,7 @@ jobs:
       - name: Build & Push Backend to Scaleway Container Registry
         run: |
           docker build -t my-backend ./back
+          # Verify image vulnerability
           #trivy image --exit-code 1 --severity HIGH,CRITICAL my-backend
           docker tag my-backend:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backend:latest
           docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-backend:latest
@@ -69,6 +70,7 @@ jobs:
       - name: Build & Push Frontend to Scaleway Container Registry
         run: |
           docker build -t my-frontend ./front
+          # Verify image vulnerability
           #trivy image --exit-code 1 --severity HIGH,CRITICAL my-frontend
           docker tag my-frontend:latest rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontend:latest
           docker push rg.fr-par.scw.cloud/namespace-boucaud-dorian/my-frontend:latest
@@ -87,8 +89,8 @@ jobs:
 
       - name: Send Email Notification
         run: |
-          echo $jobs.status
-          if [ ${{ jobs.status }} == "success" ]; then
+          echo $job.status
+          if [ ${{ job.status }} == "success" ]; then
             SUBJECT="Déploiement réussi"
             BODY="Le déploiement a réussi pour l'application XYZ."
           else
