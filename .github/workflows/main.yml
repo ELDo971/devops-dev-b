@@ -87,7 +87,8 @@ jobs:
 
       - name: Send Email Notification
         run: |
-          if [ ${{ job.status }} == "success" ]; then
+          echo $jobs.status
+          if [ ${{ jobs.status }} == "success" ]; then
             SUBJECT="Déploiement réussi"
             BODY="Le déploiement a réussi pour l'application XYZ."
           else
@@ -96,12 +97,22 @@ jobs:
           fi
 
           curl -X POST \
-            'https://api.brevo.com/v3/smtp/email' \
-            -H 'api-key: ${{ secrets.BREVO_API_KEY }}' \
-            -H 'Content-Type: application/json' \
+            -H "api-key: ${{ secrets.BREVO_API_KEY }}" \
             -d '{
-              "sender": {"email":"myfromemail@mycompany.com", "name":"From Name"},
-              "to": [{"email": "boucaud.doriann@gmail.com"}],
+              "name": "Deployment Notification",
               "subject": "'"$SUBJECT"'",
-              "htmlContent": "'"$BODY"'"
-            }'
+              "sender": {
+                "name": "From Name",
+                "email": "myfromemail@mycompany.com"
+              },
+              "type": "classic",
+              "htmlContent": "'"$BODY"'",
+              "recipients": {
+                "to": [
+                  {
+                    "email": "boucaud.doriann@gmail.com"
+                  }
+                ]
+              }
+            }' \
+            'https://api.brevo.com/v3/smtp/email'
